@@ -21,6 +21,7 @@ std::ostream& operator<<(std::ostream &os, C_Lexer::Token t)
 		INSERT_LEXER_ELEMENT(ID);
 		INSERT_LEXER_ELEMENT(INT);
 		INSERT_LEXER_ELEMENT(ASSIGN);
+		INSERT_LEXER_ELEMENT(DOUBLE);
 		#undef INSERT_LEXER_ELEMENT
 	}
 	return os << str[t];
@@ -35,12 +36,26 @@ std::ostream& operator<<(std::ostream &os, Ast::Node::Type t)
 		INSERT_LEXER_ELEMENT(MINUS);
 		INSERT_LEXER_ELEMENT(MUL);
 		INSERT_LEXER_ELEMENT(DIV);
-		INSERT_LEXER_ELEMENT(INTEGER);
+		INSERT_LEXER_ELEMENT(NUMBER);
 		INSERT_LEXER_ELEMENT(EXPR);
 		INSERT_LEXER_ELEMENT(ID);
 		INSERT_LEXER_ELEMENT(ASSIGN);
 		INSERT_LEXER_ELEMENT(BLOCK_ITEM);
 		INSERT_LEXER_ELEMENT(DECLARATION);
+		INSERT_LEXER_ELEMENT(INT_TO_DOUBLE);
+		#undef INSERT_LEXER_ELEMENT
+	}
+	return os << str[t];
+}
+
+std::ostream& operator<<(std::ostream &os, Ast::Node::ExprType t)
+{
+	static std::map<Ast::Node::ExprType, std::string> str;
+	if (str.size() == 0) {
+		#define INSERT_LEXER_ELEMENT(x) str[Ast::Node::ExprType::x] = #x
+		INSERT_LEXER_ELEMENT(INT);
+		INSERT_LEXER_ELEMENT(UNDEF);
+		INSERT_LEXER_ELEMENT(DOUBLE);
 		#undef INSERT_LEXER_ELEMENT
 	}
 	return os << str[t];

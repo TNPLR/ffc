@@ -21,7 +21,7 @@ C_Lexer::lexical_exception::lexical_exception(std::string const& error,
 
 const char *C_Lexer::lexical_exception::what() const noexcept
 {
-		return message.c_str();
+	return message.c_str();
 }
 
 C_Lexer::C_Lexer(std::string filename) : Lexer{filename}
@@ -89,6 +89,21 @@ void Lexer::lunget()
 	}
 }
 
+void C_Lexer::get_double(unsigned long long int l)
+{
+	int c = lget();
+	double d{static_cast<double>(l)};
+	double div = 0.1;
+	while (isdigit(c)) {
+		d += static_cast<double>(c - '0') * div;
+		div /= 10.0;
+		c = lget();
+	}
+	lunget();
+	var = d;
+	token = Token::DOUBLE;
+}
+
 void C_Lexer::get_int(int c)
 {
 	unsigned long long int res = 0;
@@ -97,8 +112,15 @@ void C_Lexer::get_int(int c)
 		res += c - '0';
 		c = lget();
 	} while (isdigit(c));
+
+	if (c == '.') {
+		get_double(res);
+		return;
+	}
+
 	lunget();
 	var = res;
+	token = Token::INTEGER;
 }
 
 void C_Lexer::get_identifier(int c)
@@ -131,7 +153,6 @@ void C_Lexer::next()
 		c = lget();
 		if (isdigit(c)) {
 			get_int(c);
-			token = Token::INTEGER;
 			return;
 		}
 		if (isalpha(c) || c == '_') {

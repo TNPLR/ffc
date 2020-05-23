@@ -44,7 +44,8 @@ public:
 		SEMI,
 		INT,
 		ID,
-		ASSIGN
+		ASSIGN,
+		DOUBLE
 	} token;
 	std::variant<unsigned long long int, double, std::string> var;
 	explicit C_Lexer(std::string filename);
@@ -53,6 +54,7 @@ public:
 	inline void pop() {next();};
 private:
 	void get_int(int c);
+	void get_double(unsigned long long int c);
 	void get_identifier(int c);
 };
 std::ostream& operator<<(std::ostream &os, C_Lexer::Token);

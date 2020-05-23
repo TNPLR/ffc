@@ -16,6 +16,8 @@ private:
 	unsigned int error;
 	C_Lexer lexer;
 	std::string filename;
+	unsigned int row;
+	unsigned int column;
 	class grammar_exception : public std::exception {
 	public:	
 		grammar_exception(std::string const& error, std::string const& filename, unsigned row, unsigned column);

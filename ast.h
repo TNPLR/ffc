@@ -15,23 +15,31 @@ public:
 
 class Ast::Node {
 public:
-	using DataType = std::variant<unsigned long long int, std::string>;
+	using DataType = std::variant<unsigned long long int, double, std::string>;
 	enum class Type {
 		EXPR,
 		PLUS,
 		MINUS,
 		MUL,
 		DIV,
-		INTEGER,
+		NUMBER,
 		ID,
 		ASSIGN,
 		BLOCK_ITEM,
 		DECLARATION,
+		INT_TO_DOUBLE,
 	};
 
-	explicit Node() = default;
-	explicit Node(Type t);
-	Node(Node &);
+	enum class ExprType {
+		UNDEF,
+		INT,
+		DOUBLE
+	};
+
+	explicit Node() = delete;
+	explicit Node(unsigned int row, unsigned int column) : row{row}, column{column} {}
+	explicit Node(Type t, unsigned int row, unsigned int column);
+	Node(Node const&);
 	Node(Node &&);
 
 	Node &operator=(Node &&);
@@ -41,6 +49,9 @@ public:
 	void addson(Node& node);
 	void addson(Node&& node);
 
+	inline void exprtype(ExprType t); // Set
+	inline ExprType exprtype(); // Set
+
 	inline void type(Type t); // Set
 	inline Type type(); // Get
 
@@ -48,12 +59,31 @@ public:
 	inline void data(T t); // Set
 	inline DataType const& data(); // Get
 
+	Node& operator[](std::size_t s)
+	{
+		return *son_node[s];
+	}
+	unsigned int row;
+	unsigned int column;
+
 	void sexp_print();
 private:
 	void _sexp_print(int level);
 	DataType _data;
 	enum Type _type;
+	ExprType _exprtype{ExprType::UNDEF};
 	std::vector<std::shared_ptr<Node>> son_node;
+public:
+	auto begin() -> decltype(son_node.begin())
+	{
+		return son_node.begin();
+	}
+
+	auto end() -> decltype(son_node.end())
+	{
+		return son_node.end();
+	}
+
 };
 
 template <typename T>
@@ -77,4 +107,13 @@ inline Ast::Node::Type Ast::Node::type()
 	return _type;
 }
 
+inline void Ast::Node::exprtype(ExprType t)
+{
+	_exprtype = t;
+}
+
+inline Ast::Node::ExprType Ast::Node::exprtype()
+{
+	return _exprtype;
+}
 #endif /* AST_H_ */

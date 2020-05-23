@@ -36,7 +36,7 @@ Ast C_Parser::parse()
 
 Ast::Node C_Parser::block_item_list()
 {
-	Ast::Node res{Node::Type::BLOCK_ITEM};
+	Ast::Node res{Node::Type::BLOCK_ITEM, lexer.row(), lexer.column()};
 	res.addson(block_item());
 	return block_item_list_rest(std::move(res));
 }
@@ -68,7 +68,7 @@ Ast::Node C_Parser::block_item()
 Ast::Node C_Parser::declaration()
 {
 	lexer.match_and_pop(C_Lexer::Token::INT);
-	Ast::Node res{Node::Type::DECLARATION};
+	Ast::Node res{Node::Type::DECLARATION, lexer.row(), lexer.column()};
 	res.addson(identifier());
 	lexer.match_and_pop(C_Lexer::Token::SEMI);
 	return res;
@@ -76,7 +76,7 @@ Ast::Node C_Parser::declaration()
 
 Ast::Node C_Parser::expression_statement()
 {
-	Ast::Node res{Node::Type::EXPR};
+	Ast::Node res{Node::Type::EXPR, lexer.row(), lexer.column()};
 	try {
 		res.addson(expression());
 		lexer.match_and_pop(C_Lexer::Token::SEMI);
@@ -123,7 +123,7 @@ Ast::Node C_Parser::assignment_expression()
 	Ast::Node left = addictive_expression();
 	if (lexer.token == Token::ASSIGN) {
 		lexer.pop();
-		Ast::Node res{Node::Type::ASSIGN};
+		Ast::Node res{Node::Type::ASSIGN, lexer.row(), lexer.column()};
 		res.addson(std::move(left));
 		res.addson(assignment_expression());
 		return res;
@@ -139,7 +139,7 @@ Node C_Parser::addictive_expression()
 Ast::Node C_Parser::addictive_expression_rest(Ast::Node &&node)
 {
 	using Token = C_Lexer::Token;
-	Node res{};
+	Node res{lexer.row(), lexer.column()};
 	switch (lexer.token) {
 	case Token::PLUS:
 		res.type(Node::Type::PLUS);
@@ -166,7 +166,7 @@ Ast::Node C_Parser::multiplicative_expression()
 Ast::Node C_Parser::multiplicative_expression_rest(Ast::Node &&node)
 {
 	using Token = C_Lexer::Token;
-	Node res{};
+	Node res{lexer.row(), lexer.column()};
 	switch (lexer.token) {
 	case Token::MUL:
 		res.type(Node::Type::MUL);
@@ -187,7 +187,7 @@ Ast::Node C_Parser::multiplicative_expression_rest(Ast::Node &&node)
 
 Ast::Node C_Parser::identifier()
 {
-	Node res{Node::Type::ID};
+	Node res{Node::Type::ID, lexer.row(), lexer.column()};
 	res.data(std::get<std::string>(lexer.var));
 	lexer.match_and_pop(C_Lexer::Token::ID);
 	return res;
@@ -196,11 +196,18 @@ Ast::Node C_Parser::identifier()
 Ast::Node C_Parser::primary_expression()
 {
 	using Token = C_Lexer::Token;
-	Node res{};
+	Node res{lexer.row(), lexer.column()};
 	switch (lexer.token) {
 	case Token::INTEGER:
-		res.type(Node::Type::INTEGER);
+		res.type(Node::Type::NUMBER);
+		res.exprtype(Node::ExprType::INT);
 		res.data(std::get<unsigned long long int>(lexer.var));
+		lexer.pop();
+		return res;
+	case Token::DOUBLE:
+		res.type(Node::Type::NUMBER);
+		res.exprtype(Node::ExprType::DOUBLE);
+		res.data(std::get<double>(lexer.var));
 		lexer.pop();
 		return res;
 	case Token::L_PAR:
