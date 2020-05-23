@@ -18,6 +18,8 @@ std::ostream& operator<<(std::ostream &os, C_Lexer::Token t)
 		INSERT_LEXER_ELEMENT(L_PAR);
 		INSERT_LEXER_ELEMENT(R_PAR);
 		INSERT_LEXER_ELEMENT(SEMI);
+		INSERT_LEXER_ELEMENT(ID);
+		INSERT_LEXER_ELEMENT(INT);
 		#undef INSERT_LEXER_ELEMENT
 	}
 	return os << str[t];
@@ -34,6 +36,7 @@ std::ostream& operator<<(std::ostream &os, Ast::Node::Type t)
 		INSERT_LEXER_ELEMENT(DIV);
 		INSERT_LEXER_ELEMENT(INTEGER);
 		INSERT_LEXER_ELEMENT(EXPR);
+		INSERT_LEXER_ELEMENT(ID);
 		#undef INSERT_LEXER_ELEMENT
 	}
 	return os << str[t];

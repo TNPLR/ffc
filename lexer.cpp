@@ -38,6 +38,29 @@ void C_Lexer::get_int(int c)
 	var = res;
 }
 
+void C_Lexer::get_identifier(int c)
+{
+	std::string str{""};
+	do {
+		str += c;
+		c = fin.get();
+	} while (isalpha(c) || isdigit(c) || c == '_');
+	fin.unget();
+
+	static std::map<std::string, C_Lexer::Token> keyword;
+	if (keyword.size() == 0) {
+		keyword["int"] = C_Lexer::Token::INT;
+	}
+
+	if (keyword.count(str) != 0) {
+		token = keyword[str];
+		return;
+	}
+
+	token = C_Lexer::Token::ID;
+	var = str;
+}
+
 void C_Lexer::next()
 {
 	while (1) {
@@ -46,6 +69,10 @@ void C_Lexer::next()
 		if (isdigit(c)) {
 			get_int(c);
 			token = Token::INTEGER;
+			return;
+		}
+		if (isalpha(c) || c == '_') {
+			get_identifier(c);
 			return;
 		}
 		switch (c) {

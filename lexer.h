@@ -24,15 +24,18 @@ public:
 		END,
 		L_PAR,
 		R_PAR,
-		SEMI
+		SEMI,
+		INT,
+		ID
 	} token;
-	std::variant<unsigned long long int, double> var;
+	std::variant<unsigned long long int, double, std::string> var;
 	explicit C_Lexer(std::string filename);
 	void next() override;
 	void match_and_pop(Token t);
 	inline void pop() {next();};
 private:
 	void get_int(int c);
+	void get_identifier(int c);
 };
 std::ostream& operator<<(std::ostream &os, C_Lexer::Token);
 #endif /* LEXER_H_ */

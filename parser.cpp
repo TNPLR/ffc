@@ -101,7 +101,13 @@ Ast::Node C_Parser::primary_expression()
 		res = expression();
 		lexer.match_and_pop(C_Lexer::Token::R_PAR);
 		return res;
+	case Token::ID:
+		res.type(Node::Type::ID);
+		res.data(std::get<std::string>(lexer.var));
+		lexer.pop();
+		return res;
 	default:
+		lexer.match_and_pop(C_Lexer::Token::INTEGER);
 		throw 1;
 	}
 }

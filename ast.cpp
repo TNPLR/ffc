@@ -74,6 +74,8 @@ void Ast::Node::_sexp_print(int level)
 	std::cout << "(" << _type;
 	if (_type == Type::INTEGER) {
 		std::cout << ' ' << std::get<unsigned long long int>(_data);
+	} else if (_type == Type::ID) {
+		std::cout << ' ' << std::get<std::string>(_data);
 	}
 	std::for_each(son_node.begin(), son_node.end(),
 		[level](std::shared_ptr<Node> const& nd) {

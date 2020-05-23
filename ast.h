@@ -15,7 +15,7 @@ public:
 
 class Ast::Node {
 public:
-	using DataType = std::variant<unsigned long long int>;
+	using DataType = std::variant<unsigned long long int, std::string>;
 	enum class Type {
 		EXPR,
 		PLUS,
@@ -23,6 +23,7 @@ public:
 		MUL,
 		DIV,
 		INTEGER,
+		ID,
 	};
 
 	explicit Node() = default;
@@ -67,8 +68,10 @@ inline void Ast::Node::type(Type t)
 {
 	_type = t;
 }
+
 inline Ast::Node::Type Ast::Node::type()
 {
 	return _type;
 }
+
 #endif /* AST_H_ */
