@@ -33,6 +33,8 @@ Ast::Node C_Parser::block_item_list_rest(Ast::Node &&node)
 	case Token::R_PAR:
 	case Token::END:
 		return node;
+	default:
+		break;
 	}
 	node.addson(block_item());
 	return block_item_list_rest(std::forward<Ast::Node>(node));
@@ -40,7 +42,21 @@ Ast::Node C_Parser::block_item_list_rest(Ast::Node &&node)
 
 Ast::Node C_Parser::block_item()
 {
-	return expression_statement();
+	switch (lexer.token) {
+	case C_Lexer::Token::INT:
+		return declaration();
+	default:
+		return expression_statement();
+	}
+}
+
+Ast::Node C_Parser::declaration()
+{
+	lexer.match_and_pop(C_Lexer::Token::INT);
+	Ast::Node res{Node::Type::DECLARATION};
+	res.addson(identifier());
+	lexer.match_and_pop(C_Lexer::Token::SEMI);
+	return res;
 }
 
 Ast::Node C_Parser::expression_statement()
@@ -124,6 +140,14 @@ Ast::Node C_Parser::multiplicative_expression_rest(Ast::Node &&node)
 	}
 }
 
+Ast::Node C_Parser::identifier()
+{
+	Node res{Node::Type::ID};
+	res.data(std::get<std::string>(lexer.var));
+	lexer.match_and_pop(C_Lexer::Token::ID);
+	return res;
+}
+
 Ast::Node C_Parser::primary_expression()
 {
 	using Token = C_Lexer::Token;
@@ -140,10 +164,7 @@ Ast::Node C_Parser::primary_expression()
 		lexer.match_and_pop(C_Lexer::Token::R_PAR);
 		return res;
 	case Token::ID:
-		res.type(Node::Type::ID);
-		res.data(std::get<std::string>(lexer.var));
-		lexer.pop();
-		return res;
+		return identifier();
 	default:
 		lexer.match_and_pop(C_Lexer::Token::INTEGER);
 		throw 1;
