@@ -16,7 +16,31 @@ C_Parser::C_Parser(std::string filename) : lexer{filename}
 Ast C_Parser::parse()
 {
 	lexer.next();
-	return Ast{expression_statement()};
+	return Ast{block_item_list()};
+}
+
+Ast::Node C_Parser::block_item_list()
+{
+	Ast::Node res{Node::Type::BLOCK_ITEM};
+	res.addson(block_item());
+	return block_item_list_rest(std::move(res));
+}
+
+Ast::Node C_Parser::block_item_list_rest(Ast::Node &&node)
+{
+	using Token = C_Lexer::Token;
+	switch (lexer.token) {
+	case Token::R_PAR:
+	case Token::END:
+		return node;
+	}
+	node.addson(block_item());
+	return block_item_list_rest(std::forward<Ast::Node>(node));
+}
+
+Ast::Node C_Parser::block_item()
+{
+	return expression_statement();
 }
 
 Ast::Node C_Parser::expression_statement()

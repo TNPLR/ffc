@@ -39,6 +39,7 @@ std::ostream& operator<<(std::ostream &os, Ast::Node::Type t)
 		INSERT_LEXER_ELEMENT(EXPR);
 		INSERT_LEXER_ELEMENT(ID);
 		INSERT_LEXER_ELEMENT(ASSIGN);
+		INSERT_LEXER_ELEMENT(BLOCK_ITEM);
 		#undef INSERT_LEXER_ELEMENT
 	}
 	return os << str[t];

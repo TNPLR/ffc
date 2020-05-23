@@ -12,6 +12,9 @@ public:
 	Ast parse();
 private:
 	C_Lexer lexer;
+	Ast::Node block_item_list();
+	Ast::Node block_item_list_rest(Ast::Node &&node);
+	Ast::Node block_item();
 	Ast::Node expression_statement();
 	Ast::Node expression();
 	Ast::Node addictive_expression();

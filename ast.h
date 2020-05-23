@@ -25,6 +25,7 @@ public:
 		INTEGER,
 		ID,
 		ASSIGN,
+		BLOCK_ITEM,
 	};
 
 	explicit Node() = default;
