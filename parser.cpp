@@ -10,8 +10,8 @@
 
 using Node = Ast::Node;
 
-C_Parser::grammar_exception::grammar_exception(char const*error,
-		std::string filename, unsigned row, unsigned column)
+C_Parser::grammar_exception::grammar_exception(std::string const& error,
+		std::string const& filename, unsigned row, unsigned column)
 {
 	std::stringstream ss;
 	ss << filename << ':' << row << ':' << column << ": " << error;
@@ -79,14 +79,36 @@ Ast::Node C_Parser::expression_statement()
 	Ast::Node res{Node::Type::EXPR};
 	try {
 		res.addson(expression());
+		lexer.match_and_pop(C_Lexer::Token::SEMI);
 	} catch (grammar_exception &e) {
 		std::cerr << e.what() << '\n';
 		++error;
-		while (lexer.token != C_Lexer::Token::SEMI) {
+		while (true) {
+			switch (lexer.token) {
+			case C_Lexer::Token::SEMI:
+			case C_Lexer::Token::END:
+				lexer.pop();
+				return res;
+			default:
+				break;
+			}
+			lexer.pop();
+		}
+	} catch (Lexer::lexical_exception &e) {
+		std::cerr << e.what() << '\n';
+		++error;
+		while (true) {
+			switch (lexer.token) {
+			case C_Lexer::Token::SEMI:
+			case C_Lexer::Token::END:
+				lexer.pop();
+				return res;
+			default:
+				break;
+			}
 			lexer.pop();
 		}
 	}
-	lexer.match_and_pop(C_Lexer::Token::SEMI);
 	return res;
 }
 
@@ -189,6 +211,6 @@ Ast::Node C_Parser::primary_expression()
 	case Token::ID:
 		return identifier();
 	default:
-		throw grammar_exception("expected a primary expression.", filename, lexer.row, lexer.column);
+		throw grammar_exception("expected a primary expression.", filename, lexer.row(), lexer.column());
 	}
 }

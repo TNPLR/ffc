@@ -18,7 +18,7 @@ private:
 	std::string filename;
 	class grammar_exception : public std::exception {
 	public:	
-		grammar_exception(char const*error, std::string filename, unsigned row, unsigned column);
+		grammar_exception(std::string const& error, std::string const& filename, unsigned row, unsigned column);
 		virtual const char *what() const noexcept override;
 	private:
 		std::string message;

@@ -9,11 +9,24 @@ class Lexer {
 public:
 	explicit Lexer(std::string filename);
 	virtual void next() = 0;
-	unsigned int row;
-	unsigned int column;
+	unsigned int row() const {return _row;};
+	unsigned int column() const {return _column;};
+
+	class lexical_exception : public std::exception {
+	public:	
+		lexical_exception(std::string const& error, std::string const& filename, unsigned row, unsigned column);
+		virtual const char *what() const noexcept override;
+	private:
+		std::string message;
+	};
+
 protected:
 	int lget();
 	void lunget();
+
+	unsigned int _row;
+	unsigned int _column;
+	std::string filename;
 	std::ifstream fin;
 };
 

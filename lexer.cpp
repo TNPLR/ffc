@@ -9,13 +9,27 @@
 #include <string>
 #include <exception>
 #include <map>
+#include <sstream>
+
+C_Lexer::lexical_exception::lexical_exception(std::string const& error,
+		std::string const& filename, unsigned row, unsigned column)
+{
+	std::stringstream ss;
+	ss << filename << ':' << row << ':' << column << ": " << error;
+	message = ss.str();
+}
+
+const char *C_Lexer::lexical_exception::what() const noexcept
+{
+		return message.c_str();
+}
 
 C_Lexer::C_Lexer(std::string filename) : Lexer{filename}
 {
 	// Do nothing
 }
 
-Lexer::Lexer(std::string filename) : row{1}, column{1}
+Lexer::Lexer(std::string filename) : _row{1}, _column{0}, filename{filename}
 {
 	fin.exceptions(std::ifstream::failbit);
 	try {
@@ -30,11 +44,11 @@ int Lexer::lget()
 {
 	int c = fin.get();
 	if (!fin.eof()) {
-		++column;
+		++_column;
 	}
 	if (c == '\n') {
-		++row;
-		column = 1;
+		++_row;
+		_column = 0;
 	}
 	return c;
 }
@@ -42,30 +56,36 @@ int Lexer::lget()
 void Lexer::lunget()
 {
 	fin.unget();
-	if (column == 1) {
-		if (row == 1) {
+	if (_column == 1) {
+		if (_row == 1) {
+			--_column;
 			return;
-		} else if (row == 2) {
+		} else if (_row == 2) {
 			std::streampos pos = fin.tellg();
-			unsigned int n_column = 0;
+			unsigned int n__column = 0;
 			fin.seekg(0, std::ios_base::beg);
 			while (fin.get() != '\n') {
-				++n_column;
+				++n__column;
 			}
 			fin.seekg(pos);
-			row = 1;
-			column = n_column;
+			_row = 1;
+			_column = n__column;
 		} else {
 			std::streampos pos = fin.tellg();
-			unsigned int n_column = 1;
+			unsigned int n__column = 1;
 			while (fin.unget(), fin.get() != '\n') {
-				++n_column;
+				++n__column;
 				fin.unget();
 			}
 			fin.seekg(pos);
-			row = 1;
-			column = n_column;
+			_row = 1;
+			_column = n__column;
 		}
+	} else if (_column == 0) {
+		return;
+	} else {
+		--_column;
+		return;
 	}
 }
 
@@ -155,8 +175,9 @@ void C_Lexer::next()
 void C_Lexer::match_and_pop(Token t)
 {
 	if (token != t) {
-		std::cerr << "Expected Token " << t << ", but found " << token << ".\n";
-		exit(1);
+		std::stringstream ss;
+		ss << "Expected Token " << t << ", but found " << token << ".";
+		throw lexical_exception(ss.str(), filename, row(), column());
 	}
 	next();
 }
