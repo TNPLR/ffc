@@ -9,7 +9,11 @@ class Lexer {
 public:
 	explicit Lexer(std::string filename);
 	virtual void next() = 0;
+	unsigned int row;
+	unsigned int column;
 protected:
+	int lget();
+	void lunget();
 	std::ifstream fin;
 };
 

@@ -4,14 +4,25 @@
 #include "ast.h"
 #include "lexer.h"
 
+#include <exception>
 #include <string>
+#include <sstream>
 
 class C_Parser {
 public:
 	explicit C_Parser(std::string filename);
 	Ast parse();
 private:
+	unsigned int error;
 	C_Lexer lexer;
+	std::string filename;
+	class grammar_exception : public std::exception {
+	public:	
+		grammar_exception(char const*error, std::string filename, unsigned row, unsigned column);
+		virtual const char *what() const noexcept override;
+	private:
+		std::string message;
+	};
 	Ast::Node block_item_list();
 	Ast::Node block_item_list_rest(Ast::Node &&node);
 	Ast::Node block_item();
