@@ -19,6 +19,7 @@ private:
 	Ast::Node multiplicative_expression();
 	Ast::Node multiplicative_expression_rest(Ast::Node &&node);
 	Ast::Node primary_expression();
+	Ast::Node assignment_expression();
 };
 
 #endif /* PARSER_H_ */

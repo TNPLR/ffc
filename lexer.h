@@ -26,7 +26,8 @@ public:
 		R_PAR,
 		SEMI,
 		INT,
-		ID
+		ID,
+		ASSIGN
 	} token;
 	std::variant<unsigned long long int, double, std::string> var;
 	explicit C_Lexer(std::string filename);

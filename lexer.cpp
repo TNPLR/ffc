@@ -97,6 +97,9 @@ void C_Lexer::next()
 		case ')':
 			token = Token::R_PAR;
 			return;
+		case '=':
+			token = Token::ASSIGN;
+			return;
 		case ';':
 			token = Token::SEMI;
 			return;

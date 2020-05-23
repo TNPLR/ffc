@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-Wall -Wextra -std=c++17 -Wpedantic
+CXXFLAGS=-Wall -Wextra -std=c++17 -Wpedantic -fstack-protector-all
 
 OBJS=lexer.o parser.o ast.o main.o enumprint.o
 

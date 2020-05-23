@@ -29,7 +29,21 @@ Ast::Node C_Parser::expression_statement()
 
 Ast::Node C_Parser::expression()
 {
-	return addictive_expression();
+	return assignment_expression();
+}
+
+Ast::Node C_Parser::assignment_expression()
+{
+	using Token = C_Lexer::Token;
+	Ast::Node left = addictive_expression();
+	if (lexer.token == Token::ASSIGN) {
+		lexer.pop();
+		Ast::Node res{Node::Type::ASSIGN};
+		res.addson(std::move(left));
+		res.addson(assignment_expression());
+		return res;
+	}
+	return left;
 }
 
 Node C_Parser::addictive_expression()

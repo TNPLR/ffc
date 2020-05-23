@@ -24,6 +24,7 @@ public:
 		DIV,
 		INTEGER,
 		ID,
+		ASSIGN,
 	};
 
 	explicit Node() = default;
