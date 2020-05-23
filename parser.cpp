@@ -70,6 +70,7 @@ Ast::Node C_Parser::declaration()
 	lexer.match_and_pop(C_Lexer::Token::INT);
 	Ast::Node res{Node::Type::DECLARATION, lexer.row(), lexer.column()};
 	res.addson(identifier());
+	res.exprtype(Node::ExprType::INT);
 	lexer.match_and_pop(C_Lexer::Token::SEMI);
 	return res;
 }
