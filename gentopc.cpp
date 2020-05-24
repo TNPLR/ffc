@@ -11,7 +11,7 @@ static Topc::Op __gen_lvalue(Ast::Node &node, Topc &topc)
 	Topc::Op nop;
 	switch (node.type()) {
 	case Type::ID:
-		return std::make_pair(Topc::Position::mem, std::get<Identifier>(node.data()).num);
+		return std::make_pair(Topc::Position::var, std::get<Identifier>(node.data()).num);
 	default:
 		throw 0; // not a lvalue
 	}
@@ -61,7 +61,7 @@ static Topc::Op __generate(Ast::Node &node, Topc &topc)
 		return result;
 	case Type::ID:
 		result = topc.new_tmp();
-		topc.push(I::loadi, result, std::make_pair(Topc::Position::mem, std::get<Identifier>(node.data()).num), Op{});
+		topc.push(I::loadi, result, std::make_pair(Topc::Position::var, std::get<Identifier>(node.data()).num), Op{});
 		return result;
 	default:
 		std::for_each(node.begin(), node.end(), [&](std::shared_ptr<Ast::Node> &n){ __generate(*n, topc);});

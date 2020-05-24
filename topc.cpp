@@ -9,8 +9,7 @@ std::ostream & operator<<(std::ostream &s, Topc::Op op)
 	static std::map<Topc::Position, std::string> mm;
 	if (mm.size() == 0) {
 		using P = Topc::Position;
-		mm[P::reg] = "reg";
-		mm[P::mem] = "mem";
+		mm[P::var] = "var";
 		mm[P::tmp] = "tmp";
 		mm[P::direct] = "direct";
 	}

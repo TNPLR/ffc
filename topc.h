@@ -6,8 +6,8 @@
 class Topc {
 public:
 	enum class Position {
-		reg,
-		mem,
+		undef,
+		var,
 		tmp,
 		direct
 	};
@@ -24,9 +24,15 @@ public:
 	std::size_t tmp_count{0};
 	using Op = std::pair<Position, std::size_t>;
 	using Code = std::tuple<Instruction, Op, Op, Op>;
+
 	std::vector<Code> vec;
+
 	template <typename T>
 	inline void push(T t) {vec.push_back(t);}
+
+	inline std::size_t size() {return vec.size();}
+	inline decltype(vec[0]) operator[](std::size_t s) {return vec[s];}
+
 	inline void push(Instruction i, Op a, Op b, Op c) {vec.push_back(make_tuple(i, a, b, c));}
 	inline Op new_tmp() {return std::make_pair(Position::tmp, ++tmp_count);}
 	void print();
