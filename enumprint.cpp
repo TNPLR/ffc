@@ -22,6 +22,7 @@ std::ostream& operator<<(std::ostream &os, C_Lexer::Token t)
 		INSERT_LEXER_ELEMENT(INT);
 		INSERT_LEXER_ELEMENT(ASSIGN);
 		INSERT_LEXER_ELEMENT(DOUBLE);
+		INSERT_LEXER_ELEMENT(FLOATING);
 		#undef INSERT_LEXER_ELEMENT
 	}
 	return os << str[t];

@@ -101,7 +101,7 @@ void C_Lexer::get_double(unsigned long long int l)
 	}
 	lunget();
 	var = d;
-	token = Token::DOUBLE;
+	token = Token::FLOATING;
 }
 
 void C_Lexer::get_int(int c)
@@ -135,6 +135,7 @@ void C_Lexer::get_identifier(int c)
 	static std::map<std::string, C_Lexer::Token> keyword;
 	if (keyword.size() == 0) {
 		keyword["int"] = C_Lexer::Token::INT;
+		keyword["double"] = C_Lexer::Token::DOUBLE;
 	}
 
 	if (keyword.count(str) != 0) {

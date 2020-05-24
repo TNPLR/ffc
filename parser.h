@@ -27,7 +27,8 @@ private:
 	};
 	Ast::Node block_item_list();
 	Ast::Node block_item_list_rest(Ast::Node &&node);
-	Ast::Node block_item();
+	void block_item(Ast::Node &list);
+	Ast::Node declarator(Ast::Node &node);
 	Ast::Node declaration();
 	Ast::Node identifier();
 	Ast::Node expression_statement();

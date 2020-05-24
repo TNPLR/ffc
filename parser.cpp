@@ -3,6 +3,7 @@
 #include "ast.h"
 #include "lexer.h"
 
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -37,7 +38,7 @@ Ast C_Parser::parse()
 Ast::Node C_Parser::block_item_list()
 {
 	Ast::Node res{Node::Type::BLOCK_ITEM, lexer.row(), lexer.column()};
-	res.addson(block_item());
+	block_item(res);
 	return block_item_list_rest(std::move(res));
 }
 
@@ -51,26 +52,51 @@ Ast::Node C_Parser::block_item_list_rest(Ast::Node &&node)
 	default:
 		break;
 	}
-	node.addson(block_item());
+	block_item(node);
 	return block_item_list_rest(std::forward<Ast::Node>(node));
 }
 
-Ast::Node C_Parser::block_item()
+void C_Parser::block_item(Ast::Node &list)
 {
+	Ast::Node res{lexer.row(), lexer.column()};
 	switch (lexer.token) {
 	case C_Lexer::Token::INT:
-		return declaration();
+	case C_Lexer::Token::DOUBLE:
+		res = declaration();
+		std::for_each(res.begin(), res.end(), [&](auto const& ptr) {list.addson(*ptr);});
+		return;
 	default:
-		return expression_statement();
+		list.addson(expression_statement());
+		return;
 	}
+}
+
+Ast::Node C_Parser::declarator(Ast::Node &node)
+{
+	Ast::Node res{Node::Type::DECLARATION, lexer.row(), lexer.column()};
+	Ast::Node id{identifier()};
+	res.exprtype(node.exprtype());
+	res.data(id.data());
+	return res;
 }
 
 Ast::Node C_Parser::declaration()
 {
-	lexer.match_and_pop(C_Lexer::Token::INT);
 	Ast::Node res{Node::Type::DECLARATION, lexer.row(), lexer.column()};
-	res.addson(identifier());
-	res.exprtype(Node::ExprType::INT);
+	switch (lexer.token) {
+	case C_Lexer::Token::INT:
+		lexer.pop();
+		res.exprtype(Ast::Node::ExprType::INT);
+		res.addson(declarator(res));
+		break;
+	case C_Lexer::Token::DOUBLE:
+		lexer.pop();
+		res.exprtype(Ast::Node::ExprType::DOUBLE);
+		res.addson(declarator(res));
+		break;
+	default:
+		throw grammar_exception{"cannot find a declaration specifier", filename, row, column};
+	}
 	lexer.match_and_pop(C_Lexer::Token::SEMI);
 	return res;
 }
@@ -205,7 +231,7 @@ Ast::Node C_Parser::primary_expression()
 		res.data(std::get<unsigned long long int>(lexer.var));
 		lexer.pop();
 		return res;
-	case Token::DOUBLE:
+	case Token::FLOATING:
 		res.type(Node::Type::NUMBER);
 		res.exprtype(Node::ExprType::DOUBLE);
 		res.data(std::get<double>(lexer.var));

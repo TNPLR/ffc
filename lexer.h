@@ -45,7 +45,8 @@ public:
 		INT,
 		ID,
 		ASSIGN,
-		DOUBLE
+		FLOATING,
+		DOUBLE,
 	} token;
 	std::variant<unsigned long long int, double, std::string> var;
 	explicit C_Lexer(std::string filename);
