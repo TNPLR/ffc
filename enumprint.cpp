@@ -44,6 +44,7 @@ std::ostream& operator<<(std::ostream &os, Ast::Node::Type t)
 		INSERT_LEXER_ELEMENT(BLOCK_ITEM);
 		INSERT_LEXER_ELEMENT(DECLARATION);
 		INSERT_LEXER_ELEMENT(INT_TO_DOUBLE);
+		INSERT_LEXER_ELEMENT(DOUBLE_TO_INT);
 		#undef INSERT_LEXER_ELEMENT
 	}
 	return os << str[t];

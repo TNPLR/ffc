@@ -30,6 +30,7 @@ public:
 		BLOCK_ITEM,
 		DECLARATION,
 		INT_TO_DOUBLE,
+		DOUBLE_TO_INT,
 	};
 
 	explicit Node() = delete;
