@@ -2,6 +2,7 @@
 #define AST_H_
 
 #include "vartype.h"
+#include "identifier.h"
 
 #include <vector>
 #include <memory>
@@ -17,7 +18,7 @@ public:
 
 class Ast::Node {
 public:
-	using DataType = std::variant<unsigned long long int, double, std::string>;
+	using DataType = std::variant<unsigned long long int, double, std::string, Identifier>;
 	enum class Type {
 		EXPR,
 		PLUS,

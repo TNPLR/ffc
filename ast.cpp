@@ -82,7 +82,7 @@ void Ast::Node::_sexp_print(int level) const
 			std::cout << ' ' << std::get<double>(_data);
 		}
 	} else if (_type == Type::ID) {
-		std::cout << ' ' << std::get<std::string>(_data);
+		std::cout << ' ' << std::get<Identifier>(_data).name << " number: " << std::get<Identifier>(_data).num;
 	} else if (_type == Type::DECLARATION) {
 		std::cout << ' ' << std::get<std::string>(_data);
 	}

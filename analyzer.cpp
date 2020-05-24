@@ -1,6 +1,7 @@
 #include "analyzer.h"
 #include "ast.h"
 #include "vartype.h"
+#include "identifier.h"
 
 #include <iostream>
 #include <algorithm>
@@ -21,15 +22,6 @@ void set_filename(std::string const& s)
 	filename = s;
 }
 
-// num 0 is reserved for invalid or null identifier
-struct Identifier {
-public:
-	std::size_t num;
-	Vartype type;
-	Identifier(std::size_t n, Vartype t) : num{n}, type{t} {}
-	Identifier() : num{1}, type{Vartype::BasicType::VOID} {}
-};
-
 class Scope {
 private:
 	std::size_t total_count{0};
@@ -44,6 +36,7 @@ public:
 	void pop();
 
 	Vartype get_type(std::string name);
+	Identifier get_id(std::string name);
 };
 
 
@@ -55,9 +48,17 @@ Vartype Scope::get_type(std::string name)
 	return (mm[name].type);
 }
 
+Identifier Scope::get_id(std::string name)
+{
+	if (mm.count(name) == 0) {
+		throw var_undefined_exception("variable \"" + name + "\" not found");
+	}
+	return mm[name];
+}
+
 void Scope::append(std::string const& name, Vartype i)
 {
-	Identifier id{++total_count, i};
+	Identifier id{++total_count, i, name};
 	if (mm.count(name) > 0) {
 		for (auto it = ss.top().begin(); it != ss.top().end(); ++it) {
 			if (name == std::get<0>(*it)) {
@@ -66,7 +67,7 @@ void Scope::append(std::string const& name, Vartype i)
 		}
 		ss.top().push_front(std::make_pair(name, mm[name]));
 	} else {
-		ss.top().push_front(std::make_pair(name, Identifier{0, Vartype::BasicType::VOID}));
+		ss.top().push_front(std::make_pair(name, Identifier{0, Vartype::BasicType::VOID, ""}));
 	}
 	mm[name] = id;
 }
@@ -139,7 +140,9 @@ static void __declaration_analyze(Ast::Node &node, Scope &m)
 
 static void __vartype_filling(Ast::Node &node, Scope &s)
 {
-	node.vartype(s.get_type(std::get<std::string>(node.data())));
+	Identifier id{s.get_id(std::get<std::string>(node.data()))};
+	node.vartype(id.type);
+	node.data(id);
 }
 
 static void __variable_analyze(Ast::Node &node, Scope &s)
