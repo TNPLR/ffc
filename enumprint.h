@@ -10,7 +10,6 @@ std::ostream& operator<<(std::ostream &os, C_Lexer::Token t);
 
 #ifdef AST_H_
 std::ostream& operator<<(std::ostream &os, Ast::Node::Type t);
-std::ostream& operator<<(std::ostream &os, Ast::Node::ExprType t);
 #endif /* AST_H_ */
 
 #endif /* ENUMPRINT_H_ */

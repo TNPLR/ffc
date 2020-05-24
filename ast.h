@@ -1,6 +1,8 @@
 #ifndef AST_H_
 #define AST_H_
 
+#include "vartype.h"
+
 #include <vector>
 #include <memory>
 #include <variant>
@@ -10,7 +12,7 @@ public:
 	class Node;
 	std::shared_ptr<Node> root;
 	explicit Ast(Node &&ptr);
-	void sexp_print();
+	void sexp_print() const;
 };
 
 class Ast::Node {
@@ -30,12 +32,6 @@ public:
 		INT_TO_DOUBLE,
 	};
 
-	enum class ExprType {
-		UNDEF,
-		INT,
-		DOUBLE
-	};
-
 	explicit Node() = delete;
 	explicit Node(unsigned int row, unsigned int column) : row{row}, column{column} {}
 	explicit Node(Type t, unsigned int row, unsigned int column);
@@ -49,15 +45,15 @@ public:
 	void addson(Node& node);
 	void addson(Node&& node);
 
-	inline void exprtype(ExprType t); // Set
-	inline ExprType exprtype(); // Set
+	inline void vartype(Vartype t); // Set
+	inline Vartype vartype() const; // Get
 
 	inline void type(Type t); // Set
-	inline Type type(); // Get
+	inline Type type() const; // Get
 
 	template <typename T>
 	inline void data(T t); // Set
-	inline DataType const& data(); // Get
+	inline DataType const& data() const; // Get
 
 	Node& operator[](std::size_t s)
 	{
@@ -66,12 +62,12 @@ public:
 	unsigned int row;
 	unsigned int column;
 
-	void sexp_print();
+	void sexp_print() const;
 private:
-	void _sexp_print(int level);
+	void _sexp_print(int level) const;
 	DataType _data;
 	enum Type _type;
-	ExprType _exprtype{ExprType::UNDEF};
+	Vartype _vartype{Vartype::BasicType::VOID};
 	std::vector<std::shared_ptr<Node>> son_node;
 public:
 	auto begin() -> decltype(son_node.begin())
@@ -92,7 +88,7 @@ inline void Ast::Node::data(T t)
 	_data = t;
 }
 
-inline Ast::Node::DataType const& Ast::Node::data()
+inline Ast::Node::DataType const& Ast::Node::data() const
 {
 	return _data;
 }
@@ -102,18 +98,18 @@ inline void Ast::Node::type(Type t)
 	_type = t;
 }
 
-inline Ast::Node::Type Ast::Node::type()
+inline Ast::Node::Type Ast::Node::type() const
 {
 	return _type;
 }
 
-inline void Ast::Node::exprtype(ExprType t)
+inline void Ast::Node::vartype(Vartype t)
 {
-	_exprtype = t;
+	_vartype = t;
 }
 
-inline Ast::Node::ExprType Ast::Node::exprtype()
+inline Vartype Ast::Node::vartype() const
 {
-	return _exprtype;
+	return _vartype;
 }
 #endif /* AST_H_ */

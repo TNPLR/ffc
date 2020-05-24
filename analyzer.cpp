@@ -67,26 +67,23 @@ const char *vartype_exception::what() const noexcept
 		return message.c_str();
 }
 
-static void __declarator_analyze(Ast::Node &node, std::map<std::string, Identifier> &m)
+static void __declaration_analyze(Ast::Node &node, Scope &m)
 {
-	using ExprType = Ast::Node::ExprType;
 	using Type = Ast::Node::Type;
-	std::for_each(node.begin(), node.end(), [&](auto const &t) {
-		m[std::get<std::string>(t->data())] = Identifier{m.size()};
-	});
+	using BasicType = Vartype::BasicType;
 }
 
-static void __variable_analyze(Ast::Node &node, std::map<std::string, Identifier> &m)
+static void __variable_analyze(Ast::Node &node, Scope &s)
 {
-	using ExprType = Ast::Node::ExprType;
+	using BasicType = Vartype::BasicType;
 	using Type = Ast::Node::Type;
 	if (node.type() == Type::DECLARATION) {
-		__declarator_analyze(node, m);
+		__declaration_analyze(node, s);
 	}
 	std::for_each(node.begin(), node.end(),
 		[&](auto const &t){
 			// for some different scope, map should be passed by value
-			__variable_analyze(*t, m);
+			__variable_analyze(*t, s);
 		});
 }
 
@@ -96,7 +93,7 @@ static void __type_analyze_arthematic(Ast::Node &node)
 
 static void __type_analyze(Ast::Node &node)
 {
-	using ExprType = Ast::Node::ExprType;
+	using BasicType = Vartype::BasicType;
 	using Type = Ast::Node::Type;
 	std::for_each(node.begin(), node.end(),
 		[](auto const &t){__type_analyze(*t);});
@@ -104,31 +101,31 @@ static void __type_analyze(Ast::Node &node)
 	/* set this node type x if the first child is y
 		the second is z */
 	#define CAL_TYPE(x,y,z) do { \
-		if (node[0].exprtype() == y && \
-		node[1].exprtype() == z) { \
-			node.exprtype(z); \
+		if (node[0].vartype() == y && \
+		node[1].vartype() == z) { \
+			node.vartype(z); \
 			return; \
 		} } while(0)
 
 	/* set this node type x if one child is y and the other is z */
 	#define D_CAL_TYPE(x,y,z) do { \
-		if (node[0].exprtype() == y && \
-				node[1].exprtype() == z) { \
-			node.exprtype(x); \
+		if (node[0].vartype() == y && \
+				node[1].vartype() == z) { \
+			node.vartype(x); \
 			return; \
-		} else if (node[0].exprtype() == z && \
-				node[1].exprtype() == y) { \
-			node.exprtype(x); \
+		} else if (node[0].vartype() == z && \
+				node[1].vartype() == y) { \
+			node.vartype(x); \
 			return; \
 		}  } while(0)
 
 	/* do the function if one child is t1 and the other is t2 */
-	auto if_dtype = [&] (ExprType t1, ExprType t2, std::function<void()> f)->bool { 
-		if (node[0].exprtype() == t1 && node[1].exprtype() == t2) {
+	auto if_dtype = [&] (BasicType t1, BasicType t2, std::function<void()> f)->bool { 
+		if (node[0].vartype() == t1 && node[1].vartype() == t2) {
 			f();
 			return true;
 		}
-		if (node[0].exprtype() == t2 && node[1].exprtype() == t1) {
+		if (node[0].vartype() == t2 && node[1].vartype() == t1) {
 			f();
 			return true;
 		}
@@ -140,17 +137,18 @@ static void __type_analyze(Ast::Node &node)
 	case Type::MINUS:
 	case Type::MUL:
 	case Type::DIV:
-		D_CAL_TYPE(ExprType::INT, ExprType::INT, ExprType::INT);
-		if (if_dtype(ExprType::DOUBLE, ExprType::INT, [&](){
-				node.exprtype(ExprType::DOUBLE);
-				if (node[0].exprtype() == ExprType::INT) {
+		D_CAL_TYPE(BasicType::INT, BasicType::INT, BasicType::INT);
+		D_CAL_TYPE(BasicType::DOUBLE, BasicType::DOUBLE, BasicType::DOUBLE);
+		if (if_dtype(BasicType::DOUBLE, BasicType::INT, [&](){
+				node.vartype(BasicType::DOUBLE);
+				if (node[0].vartype() == BasicType::INT) {
 					Ast::Node nd{Type::INT_TO_DOUBLE, node[0].row, node[0].column};
-					nd.exprtype(ExprType::DOUBLE);
+					nd.vartype(BasicType::DOUBLE);
 					nd.addson(std::move(node[0]));
 					node[0] = std::move(nd);
 				} else {
 					Ast::Node nd{Type::INT_TO_DOUBLE, node[1].row, node[1].column};
-					nd.exprtype(ExprType::DOUBLE);
+					nd.vartype(BasicType::DOUBLE);
 					nd.addson(std::move(node[1]));
 					node[1] = std::move(nd);
 				}
@@ -161,10 +159,14 @@ static void __type_analyze(Ast::Node &node)
 	case Type::NUMBER:
 		return;
 	case Type::ID:
-		node.exprtype(ExprType::INT);
+		node.vartype(BasicType::INT);
 		return;
 	case Type::ASSIGN:
-		node.exprtype(ExprType::INT);
+		D_CAL_TYPE(BasicType::INT, BasicType::INT, BasicType::INT);
+		D_CAL_TYPE(BasicType::INT, BasicType::INT, BasicType::DOUBLE);
+
+		D_CAL_TYPE(BasicType::DOUBLE, BasicType::DOUBLE, BasicType::DOUBLE);
+		D_CAL_TYPE(BasicType::DOUBLE, BasicType::DOUBLE, BasicType::INT);
 		return;
 	default:
 		break;

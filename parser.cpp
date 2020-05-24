@@ -2,6 +2,7 @@
 
 #include "ast.h"
 #include "lexer.h"
+#include "vartype.h"
 
 #include <algorithm>
 #include <iostream>
@@ -75,7 +76,7 @@ Ast::Node C_Parser::declarator(Ast::Node &node)
 {
 	Ast::Node res{Node::Type::DECLARATION, lexer.row(), lexer.column()};
 	Ast::Node id{identifier()};
-	res.exprtype(node.exprtype());
+	res.vartype(node.vartype());
 	res.data(id.data());
 	return res;
 }
@@ -86,12 +87,12 @@ Ast::Node C_Parser::declaration()
 	switch (lexer.token) {
 	case C_Lexer::Token::INT:
 		lexer.pop();
-		res.exprtype(Ast::Node::ExprType::INT);
+		res.vartype(Vartype::BasicType::INT);
 		res.addson(declarator(res));
 		break;
 	case C_Lexer::Token::DOUBLE:
 		lexer.pop();
-		res.exprtype(Ast::Node::ExprType::DOUBLE);
+		res.vartype(Vartype::BasicType::DOUBLE);
 		res.addson(declarator(res));
 		break;
 	default:
@@ -227,13 +228,13 @@ Ast::Node C_Parser::primary_expression()
 	switch (lexer.token) {
 	case Token::INTEGER:
 		res.type(Node::Type::NUMBER);
-		res.exprtype(Node::ExprType::INT);
+		res.vartype(Vartype::BasicType::INT);
 		res.data(std::get<unsigned long long int>(lexer.var));
 		lexer.pop();
 		return res;
 	case Token::FLOATING:
 		res.type(Node::Type::NUMBER);
-		res.exprtype(Node::ExprType::DOUBLE);
+		res.vartype(Vartype::BasicType::DOUBLE);
 		res.data(std::get<double>(lexer.var));
 		lexer.pop();
 		return res;

@@ -17,7 +17,7 @@ Ast::Node::Node(Type t, unsigned int row, unsigned int column) : row{row}, colum
 	// Do nothing
 }
 
-Ast::Node::Node(Node const& node) :row{node.row}, column{node.column},  _data{node._data}, _type{node._type}, _exprtype{node._exprtype}
+Ast::Node::Node(Node const& node) :row{node.row}, column{node.column},  _data{node._data}, _type{node._type}, _vartype{node._vartype}
 {
 	son_node.resize(node.son_node.size());
 	for (std::size_t i = 0; i < node.son_node.size(); ++i) {
@@ -25,7 +25,7 @@ Ast::Node::Node(Node const& node) :row{node.row}, column{node.column},  _data{no
 	}
 }
 
-Ast::Node::Node(Node &&node) : row{node.row}, column{node.column}, _data{std::move(node._data)}, _type{node._type}, _exprtype{node._exprtype}, son_node{std::move(node.son_node)}
+Ast::Node::Node(Node &&node) : row{node.row}, column{node.column}, _data{std::move(node._data)}, _type{node._type}, _vartype{node._vartype}, son_node{std::move(node.son_node)}
 {
 	// Do nothing
 }
@@ -37,7 +37,7 @@ Ast::Node &Ast::Node::operator=(Node &&node)
 		column = node.column;
 		_data = std::move(node._data);
 		_type = std::move(node._type);
-		_exprtype = std::move(node._exprtype);
+		_vartype = std::move(node._vartype);
 		son_node = std::move(node.son_node);
 	}
 	return *this;
@@ -58,27 +58,27 @@ Ast::Node::~Node()
 	// Do nothing
 }
 
-void Ast::sexp_print()
+void Ast::sexp_print() const
 {
 	root->sexp_print();
 	std::cout << std::endl;
 }
 
-void Ast::Node::sexp_print()
+void Ast::Node::sexp_print() const
 {
 	_sexp_print(0);
 }
 
-void Ast::Node::_sexp_print(int level)
+void Ast::Node::_sexp_print(int level) const
 {
 	for (int i = 0; i < level; ++i) {
 		std::cout << '\t';
 	}
-	std::cout << "(" << _type << " type: " << _exprtype;
+	std::cout << "(" << _type << " type: " << _vartype;
 	if (_type == Type::NUMBER) {
-		if (_exprtype == ExprType::INT) {
+		if (_vartype == Vartype::BasicType::INT) {
 			std::cout << ' ' << std::get<unsigned long long int>(_data);
-		} else if (_exprtype == ExprType::DOUBLE) {
+		} else if (_vartype == Vartype::BasicType::DOUBLE) {
 			std::cout << ' ' << std::get<double>(_data);
 		}
 	} else if (_type == Type::ID) {
