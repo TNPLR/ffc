@@ -5,7 +5,7 @@ CXXFLAGS=-Wall -Wextra -std=c++17 -Wpedantic -fstack-protector-all \
 	-fstack-clash-protection -Wl,-z,relro -O2 \
 	-ftree-loop-vectorize -flto -fcf-protection=full
 
-OBJS=lexer.o parser.o ast.o main.o enumprint.o analyzer.o vartype.o
+OBJS=lexer.o parser.o ast.o main.o enumprint.o analyzer.o vartype.o gentopc.o topc.o
 
 .PHONY: all clean
 all: main

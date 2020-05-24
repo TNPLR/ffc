@@ -24,7 +24,7 @@ void set_filename(std::string const& s)
 
 class Scope {
 private:
-	std::size_t total_count{0};
+	std::size_t total_count{1};
 	using Pair = std::pair<std::string, Identifier>;
 	std::map<std::string, Identifier> mm;
 	std::stack<std::list<Pair>> ss;
